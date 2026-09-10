@@ -1,14 +1,19 @@
 package com.naini.chromeyoutubeblocker
 
 import android.app.Activity
+import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.view.ActionMode
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -49,12 +54,24 @@ class MainActivity : Activity() {
 
         if (isAccessibilityServiceEnabled()) {
             val status = TextView(this).apply {
-                text = "BLOQUEO ACTIVO\n\nModo estricto habilitado. YouTube en Chrome queda bloqueado. YouTube Music sigue permitido."
+                text = if (isDeviceAdminActive()) {
+                    "BLOQUEO ACTIVO Y PROTEGIDO\n\nYouTube en Chrome queda bloqueado. YouTube Music sigue permitido. La protección contra desinstalación está activa."
+                } else {
+                    "BLOQUEO ACTIVO\n\nYouTube en Chrome queda bloqueado. YouTube Music sigue permitido. Podés agregar una capa extra contra desinstalación accidental."
+                }
                 textSize = 17f
                 gravity = Gravity.CENTER
                 setPadding(0, pad, 0, pad)
             }
             root.addView(status, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+
+            if (!isDeviceAdminActive()) {
+                val protect = Button(this).apply {
+                    text = "PROTEGER CONTRA DESINSTALACIÓN"
+                    setOnClickListener { requestDeviceAdmin() }
+                }
+                root.addView(protect, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
 
             val music = Button(this).apply {
                 text = "ABRIR YOUTUBE MUSIC"
@@ -95,80 +112,110 @@ class MainActivity : Activity() {
     }
 
     private fun showStrictGate(root: LinearLayout) {
-        root.removeAllViews()
-        val pad = (24 * resources.displayMetrics.density).toInt()
+        var round = 1
 
-        val title = TextView(this).apply {
-            text = "Confirmación estricta"
-            textSize = 26f
-            gravity = Gravity.CENTER
-        }
-        root.addView(title, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        fun renderRound() {
+            root.removeAllViews()
+            val pad = (24 * resources.displayMetrics.density).toInt()
 
-        val instruction = TextView(this).apply {
-            text = "Para abrir los ajustes que permiten desactivar el bloqueador, escribí exactamente esta frase a mano:"
-            textSize = 17f
-            gravity = Gravity.CENTER
-            setPadding(0, pad, 0, pad / 2)
-        }
-        root.addView(instruction, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val title = TextView(this).apply {
+                text = "Confirmación estricta $round/5"
+                textSize = 26f
+                gravity = Gravity.CENTER
+            }
+            root.addView(title, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val phrase = TextView(this).apply {
-            text = unlockPhrase
-            textSize = 18f
-            gravity = Gravity.CENTER
-            setTextIsSelectable(false)
-            setPadding(0, pad / 2, 0, pad)
-        }
-        root.addView(phrase, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val instruction = TextView(this).apply {
+                text = "Escribí exactamente esta frase a mano. Pegar, autofill, dictado y entradas de varios caracteres se rechazan."
+                textSize = 17f
+                gravity = Gravity.CENTER
+                setPadding(0, pad, 0, pad / 2)
+            }
+            root.addView(instruction, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val input = NoPasteEditText(this).apply {
-            hint = "Escribí la frase completa"
-            textSize = 17f
-            gravity = Gravity.CENTER
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-            isLongClickable = false
-            setTextIsSelectable(false)
-            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
-        }
-        root.addView(input, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val phrase = TextView(this).apply {
+                text = unlockPhrase
+                textSize = 18f
+                gravity = Gravity.CENTER
+                setTextIsSelectable(false)
+                isLongClickable = false
+                setPadding(0, pad / 2, 0, pad)
+            }
+            root.addView(phrase, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val confirm = Button(this).apply {
-            text = "ABRIR AJUSTES"
-            isEnabled = false
-        }
-        root.addView(confirm, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val input = StrictManualEditText(this).apply {
+                hint = "Escribí la frase completa"
+                textSize = 17f
+                gravity = Gravity.CENTER
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+                setAutofillHints(null)
+            }
+            root.addView(input, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        val cancel = Button(this).apply {
-            text = "CANCELAR"
-            setOnClickListener { render() }
-        }
-        root.addView(cancel, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            val confirm = Button(this).apply {
+                text = if (round < 5) "SIGUIENTE" else "ABRIR AJUSTES"
+                isEnabled = false
+            }
+            root.addView(confirm, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        input.addTextChangedListener(SimpleTextWatcher {
-            confirm.isEnabled = it == unlockPhrase
-        })
+            val cancel = Button(this).apply {
+                text = "CANCELAR"
+                setOnClickListener { render() }
+            }
+            root.addView(cancel, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        confirm.setOnClickListener {
-            if (input.text.toString() == unlockPhrase) {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            input.setOnManualTextChangedListener { current ->
+                confirm.isEnabled = current == unlockPhrase
+            }
+
+            confirm.setOnClickListener {
+                if (input.text.toString() != unlockPhrase) return@setOnClickListener
+                if (round < 5) {
+                    round++
+                    renderRound()
+                } else {
+                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                }
+            }
+
+            input.requestFocus()
+            input.post {
+                (getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager)
+                    ?.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
             }
         }
 
-        input.requestFocus()
-        input.post {
-            (getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager)
-                ?.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
-        }
+        renderRound()
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
-        val expected = ComponentName(this, YouTubeBlockAccessibilityService::class.java).flattenToString()
+        val expected = ComponentName(
+            packageName,
+            "$packageName.YouTubeBlockAccessibilityService"
+        ).flattenToString()
         val enabled = Settings.Secure.getString(
             contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ) ?: return false
         return enabled.split(':').any { it.equals(expected, ignoreCase = true) }
+    }
+
+    private fun isDeviceAdminActive(): Boolean {
+        val dpm = getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        return dpm.isAdminActive(ComponentName(this, BlockerDeviceAdminReceiver::class.java))
+    }
+
+    private fun requestDeviceAdmin() {
+        val admin = ComponentName(this, BlockerDeviceAdminReceiver::class.java)
+        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
+            putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, admin)
+            putExtra(
+                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                "Esta capa agrega fricción para evitar desinstalar el bloqueador impulsivamente. Android siempre mantiene una salida desde Ajustes."
+            )
+        }
+        startActivity(intent)
     }
 
     private fun openMusic() {
@@ -178,26 +225,65 @@ class MainActivity : Activity() {
     }
 }
 
-private class NoPasteEditText(context: Context) : EditText(context) {
+private class StrictManualEditText(context: Context) : EditText(context) {
+    private var internalChange = false
+    private var accepted = ""
+    private var listener: ((String) -> Unit)? = null
+
+    init {
+        isLongClickable = false
+        setTextIsSelectable(false)
+        customSelectionActionModeCallback = BlockActionModeCallback
+        customInsertionActionModeCallback = BlockActionModeCallback
+
+        addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (internalChange) return
+                val next = s?.toString().orEmpty()
+                val validAppend = next.length == accepted.length + 1 && next.startsWith(accepted)
+                val validDelete = next.length == accepted.length - 1 && accepted.startsWith(next)
+                val unchanged = next == accepted
+
+                if (validAppend || validDelete || unchanged) {
+                    accepted = next
+                    listener?.invoke(accepted)
+                } else {
+                    internalChange = true
+                    setText(accepted)
+                    setSelection(accepted.length)
+                    internalChange = false
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) = Unit
+        })
+    }
+
+    fun setOnManualTextChangedListener(block: (String) -> Unit) {
+        listener = block
+        block(accepted)
+    }
+
     override fun onTextContextMenuItem(id: Int): Boolean {
-        if (id == android.R.id.paste || id == android.R.id.pasteAsPlainText) return false
+        if (
+            id == android.R.id.paste ||
+            id == android.R.id.pasteAsPlainText ||
+            id == android.R.id.copy ||
+            id == android.R.id.cut ||
+            id == android.R.id.selectAll
+        ) return false
         return super.onTextContextMenuItem(id)
     }
 
     override fun startActionMode(callback: ActionMode.Callback?, type: Int): ActionMode? = null
     override fun startActionMode(callback: ActionMode.Callback?): ActionMode? = null
 
-    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
-        super.onSelectionChanged(text?.length ?: 0, text?.length ?: 0)
+    private object BlockActionModeCallback : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+        override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean = false
+        override fun onDestroyActionMode(mode: ActionMode?) = Unit
     }
-}
-
-private class SimpleTextWatcher(
-    private val onChanged: (String) -> Unit
-) : android.text.TextWatcher {
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        onChanged(s?.toString().orEmpty())
-    }
-    override fun afterTextChanged(s: android.text.Editable?) = Unit
 }
