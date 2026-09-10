@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">No YouTube en Chrome</string>
+    <string name="accessibility_description">Bloquea páginas de YouTube únicamente dentro de Google Chrome.</string>
+</resources>
