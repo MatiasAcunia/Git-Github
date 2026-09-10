@@ -9,8 +9,6 @@ import android.provider.Settings
 import android.text.InputType
 import android.view.ActionMode
 import android.view.Gravity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -165,7 +163,7 @@ class MainActivity : Activity() {
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
-        val expected = ComponentName(this, YouTubeBlockerService::class.java).flattenToString()
+        val expected = ComponentName(this, YouTubeBlockAccessibilityService::class.java).flattenToString()
         val enabled = Settings.Secure.getString(
             contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
