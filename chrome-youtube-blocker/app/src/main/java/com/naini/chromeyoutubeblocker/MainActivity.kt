@@ -46,7 +46,7 @@ class MainActivity : Activity() {
         }
 
         val title = TextView(this).apply {
-            text = "No YouTube en Chrome"
+            text = "No YouTube en navegadores"
             textSize = 28f
             gravity = Gravity.CENTER
         }
@@ -55,9 +55,9 @@ class MainActivity : Activity() {
         if (isAccessibilityServiceEnabled()) {
             val status = TextView(this).apply {
                 text = if (isDeviceAdminActive()) {
-                    "BLOQUEO ACTIVO Y PROTEGIDO\n\nYouTube en Chrome queda bloqueado. YouTube Music sigue permitido. La protección contra desinstalación está activa."
+                    "SERVICIO HABILITADO Y ADMINISTRADOR ACTIVO\n\nEl servicio está habilitado; comprobá el bloqueo en Chrome y Mi Browser. YouTube Music sigue permitido. La protección contra desinstalación está activa."
                 } else {
-                    "BLOQUEO ACTIVO\n\nYouTube en Chrome queda bloqueado. YouTube Music sigue permitido. Podés agregar una capa extra contra desinstalación accidental."
+                    "SERVICIO HABILITADO\n\nEl servicio está habilitado; comprobá el bloqueo en Chrome y Mi Browser. YouTube Music sigue permitido. Podés agregar una capa extra contra desinstalación accidental."
                 }
                 textSize = 17f
                 gravity = Gravity.CENTER
