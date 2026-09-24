@@ -108,6 +108,46 @@ class MainActivity : Activity() {
             root.addView(music, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         }
 
+        val repair = Button(this).apply {
+            text = "COMPROBAR / REACTIVAR BLOQUEADOR"
+            setOnClickListener { showRepairScreen() }
+        }
+        root.addView(repair, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        setContentView(root)
+    }
+
+    private fun showRepairScreen() {
+        val pad = (24 * resources.displayMetrics.density).toInt()
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(pad, pad, pad, pad)
+        }
+        val enabled = isAccessibilityServiceEnabled()
+        val health = getSharedPreferences("health", MODE_PRIVATE)
+        val event = health.getString("last_event", "sin registros") ?: "sin registros"
+        val last = health.getLong("last_event_ms", 0L)
+        val elapsed = if (last > 0L) (System.currentTimeMillis() - last).coerceAtLeast(0L) / 1000 else -1L
+        val message = TextView(this).apply {
+            text = "Accesibilidad habilitada: ${if (enabled) "sí" else "no"}\\nÚltimo evento: $event\\nHace: ${if (elapsed < 0) "sin datos" else "$elapsed segundos"}\\n\\nQue esté habilitada NO confirma que funcione. Si Android dice que el servicio no funciona correctamente, abrí Ajustes y apagalo y volvelo a encender. No es necesario desinstalar la aplicación. Si no hubo eventos recientes, abrí Chrome y volvé a comprobar."
+            textSize = 17f
+        }
+        root.addView(message, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val settings = Button(this).apply {
+            text = "ABRIR ACCESIBILIDAD PARA REACTIVAR"
+            setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+        }
+        root.addView(settings, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val refresh = Button(this).apply {
+            text = "ACTUALIZAR ESTADO"
+            setOnClickListener { showRepairScreen() }
+        }
+        root.addView(refresh, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val back = Button(this).apply {
+            text = "VOLVER"
+            setOnClickListener { render() }
+        }
+        root.addView(back, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         setContentView(root)
     }
 
