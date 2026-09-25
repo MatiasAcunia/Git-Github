@@ -1,2 +1,2 @@
 #!/bin/bash
-# TU COMANDO
+tr -d 'cC'
