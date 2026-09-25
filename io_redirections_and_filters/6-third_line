@@ -1,2 +1,2 @@
 #!/bin/bash
-# TU COMANDO
+head -3 iacta |	tail -1
