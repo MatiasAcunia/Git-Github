@@ -1,2 +1,2 @@
 #!/bin/bash
-# TODO
+printf "%.2f\n" "$NUM"

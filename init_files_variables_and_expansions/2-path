@@ -1,2 +1,2 @@
 #!/bin/bash
-# TODO
+export PATH="$PATH:/action"
