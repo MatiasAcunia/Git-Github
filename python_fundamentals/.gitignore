@@ -1,0 +1,8 @@
+# Entornos y archivos derivados de Python
+alpha_env/
+beta_env/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
