@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
-# TODO: Imprimir pares únicos y ordenados: 01, 02, ... 89.
-# Cada par contiene dos dígitos distintos (primero < segundo).
-# Máximo dos bucles y tres print con formato; sin coma final.
+for first in range(10):
+    for second in range(first + 1, 10):
+        if first == 8 and second == 9:
+            print(f"{first}{second}")
+        else:
+            print(f"{first}{second}", end=", ")
