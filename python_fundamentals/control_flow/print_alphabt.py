@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-alphabet = ""
-for code in range(ord("a"), ord("z") + 1):
-    if code != ord("e") and code != ord("q"):
-        alphabet += chr(code)
-
-print(alphabet)
+for code in range(97, 123):
+    if code != 101 and code != 113:
+        print("{}".format(chr(code)), end="\n" if code == 122 else "")
