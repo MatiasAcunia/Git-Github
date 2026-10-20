@@ -1,6 +1,6 @@
 # UTEC 4256 — Funciones y modularidad
 
-**Trabajo pendiente del estudiante.** Los scripts entregables solo tienen el encabezado obligatorio y sus firmas exactas; `pass` es un marcador sintáctico, no una solución. Los tres archivos auxiliares (véase abajo) están listos para practicar importaciones. No ejecutar el autocorrector antes de desarrollar cada tarea.
+**Estado:** scripts implementados y revisados contra las restricciones explícitas del enunciado. Pruebas locales de sintaxis, resultados y comportamiento al importar: correctas. **La aprobación final del autocorrector de UTEC aún no está verificada.** Los tres módulos auxiliares están incluidos para practicar importaciones.
 
 ## Contratos
 
@@ -23,7 +23,7 @@
 - Un archivo Python es también un módulo. Importar ejecuta sus sentencias de nivel superior en la primera carga dentro de un proceso.
 - `import modulo` importa un módulo; `from modulo import nombre` trae un símbolo concreto.
 - `__name__` vale `"__main__"` al ejecutar directamente; al importar normalmente vale el nombre del módulo. La protección `if __name__ == "__main__":` distingue ambos casos.
-- En `simple_add.py` experimentá primero la llamada fuera del guard y después dentro. **No anticipes el quiz de intento único sin observar las diferencias**.
+- En `simple_add.py` se realizó el experimento con la llamada fuera y dentro del guard. El estado publicado contiene la protección final. El cuestionario de intento único no se completa automáticamente; verificar comprensión antes de iniciarlo.
 
 ## Dependencias de apoyo
 

@@ -9,7 +9,4 @@ def uppercase(str):
         else:
             letra = i
             print(f"{letra}", end="")
-
     print()
-
-

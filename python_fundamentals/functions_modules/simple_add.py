@@ -4,5 +4,6 @@
 def add(a, b):
     return a + b
 
+
 if __name__ == "__main__":
-    print(f"{add(3, 5)}")
+    print(add(3, 5))
