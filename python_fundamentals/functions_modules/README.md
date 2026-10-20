@@ -1,14 +1,14 @@
 # UTEC 4256 — Funciones y modularidad
 
-**Estado:** scripts implementados y revisados contra las restricciones explícitas del enunciado. Pruebas locales de sintaxis, resultados y comportamiento al importar: correctas. **La aprobación final del autocorrector de UTEC aún no está verificada.** Los tres módulos auxiliares están incluidos para practicar importaciones.
+**Estado:** scripts implementados y verificados en auditoría consolidada de 763 aserciones locales (ASCII, salidas, importaciones, exponentes negativos, sintaxis, permisos, formato básico). **No se pudo ejecutar pycodestyle 2.7.x en el entorno de auditoría; falta la aceptación del autocorrector de UTEC.** Los tres módulos auxiliares se incluyen para practicar importaciones.
 
 ## Contratos
 
 | Tarea | Script a implementar | Resultado y límites |
 | --- | --- | --- |
 | 0 — Minúscula | `islower.py` — `islower(c)` | Retornar `True` solo para letras minúsculas ASCII. Usar `ord()`; prohibido `.islower()`. Considerar dígitos y mayúsculas |
-| 1 — Mayúsculas | `uppercase.py` — `uppercase(str)` | Imprimir directamente texto en mayúsculas con salto final; sin `.upper()`; usar `ord()`/`chr()`; no retornar texto. Considerar espacios y caracteres que no requieren conversión |
-| 2 — Último dígito | `print_last_digit.py` — `print_last_digit(number)` | Imprimir **solo** el dígito final no negativo y **devolver el entero**; casos negativos y cero |
+| 1 — Mayúsculas | `uppercase.py` — `uppercase(str)` | Imprimir directamente el texto en mayúsculas con un salto final, máximo **dos instrucciones `print`** y un solo bucle (restricciones del ejercicio original); sin `.upper()`; usar `ord()`/`chr()`; no retornar texto. Conservar espacios, dígitos y puntuación |
+| 2 — Último dígito | `print_last_digit.py` — `print_last_digit(number)` | Imprimir **solo** el dígito final no negativo **sin salto de línea**, y **devolver el entero**. En la actividad original tres llamadas seguidas de imprimir el valor devuelto producen `8044` (98, 0, -1024). El enunciado adaptado no explicita este detalle, por lo que se debe contrastar con el evaluador UTEC |
 | 3 — Potencia | `pow.py` — `pow(a,b)` | Devolver potencia calculada mediante un bucle. Prohibido `**` e imports; considerar exponente cero |
 | 4 — Ejecución e importación | `simple_add.py`, `test_import.py` | Definir `add(a,b)`; observar impresión a nivel de módulo al ejecutar e importar; después proteger la llamada de ejecución directa. El quiz de 10 puntos solo tiene **un intento** |
 | 5 — Importar suma | `add.py` | Importar `add` desde `add_0.py`. Establecer a=1 y b=2; imprimir `1 + 2 = 3`. Sin `import *` ni `__import__`; sin efecto de impresión al importar |
