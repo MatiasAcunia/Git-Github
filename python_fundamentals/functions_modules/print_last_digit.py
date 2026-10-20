@@ -2,4 +2,7 @@
 
 
 def print_last_digit(number):
-    pass
+    number = abs(number) % 10
+    print(f"{number}")
+    return number
+    

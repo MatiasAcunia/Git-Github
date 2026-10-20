@@ -2,4 +2,7 @@
 
 
 def add(a, b):
-    pass
+    return a + b
+
+if __name__ == "__main__":
+    print(f"{add(3, 5)}")
