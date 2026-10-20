@@ -1,6 +1,6 @@
 # UTEC 4256 — Funciones y modularidad
 
-**Estado:** scripts implementados y verificados en auditoría consolidada de 763 aserciones locales (ASCII, salidas, importaciones, exponentes negativos, sintaxis, permisos, formato básico). **No se pudo ejecutar pycodestyle 2.7.x en el entorno de auditoría; falta la aceptación del autocorrector de UTEC.** Los tres módulos auxiliares se incluyen para practicar importaciones.
+**Estado:** scripts implementados y verificados en auditoría consolidada de 833 comprobaciones locales (ASCII, salidas, importaciones, exponentes negativos, sintaxis, permisos, formato básico). **No se pudo instalar pycodestyle 2.7.0 en el entorno de auditoría; se comprobaron por separado la sintaxis, sangría, longitud de línea, espacios al final, nueva línea y permisos. Falta la aceptación del autocorrector UTEC.** Los tres módulos auxiliares se incluyen para practicar importaciones.
 
 ## Contratos
 
@@ -33,3 +33,13 @@ https://github.com/hbtn-edu/public_resources/blob/main/3842-python-functions_and
 ## Condiciones generales
 
 Ubuntu 20.04, Python 3.8, primera línea `#!/usr/bin/env python3`, permiso ejecutable, newline final y PEP8 (pycodestyle 2.7.x). Sin bibliotecas externas ni `sys.argv`. El autocorrector decide el formato final, así que hay que comparar la salida completa, no solo la lógica.
+
+
+## Hallazgos concretos del corrector UTEC (2026-10-20)
+
+- El corrector exige explícitamente `.format(` (y no solo f-strings) en las instrucciones `print` de `add.py` y `calculation.py`.
+- En `add.py` se exige una única aparición de `add_0`, definir `a = 1` y `b = 2`, y usar los tres valores de la expresión de salida mediante la función importada.
+- En `calculation.py` se exige una única aparición de `calculator_1`, como máximo cuatro `print` con formato, llamadas genuinas a las cuatro funciones importadas y ausencia de salida durante la importación.
+- El corrector sustituye las funciones importadas con funciones falsas: la salida debe mostrar siempre los resultados de las funciones realmente importadas, nunca recalcularlos en el script.
+- Para `variable_load.py`, se adopta también `.format(` por coherencia preventiva con los chequeos de formato de estas tareas; su exigencia particular aún no está confirmada.
+- La tarea 4 incluye una evaluación conceptual de intento único: el código correcto por sí solo no otorga esos puntos.
