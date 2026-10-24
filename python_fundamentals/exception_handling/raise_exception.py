@@ -2,4 +2,4 @@
 
 
 def raise_exception():
-    pass
+    raise TypeError("Tipo mal ingresado")
