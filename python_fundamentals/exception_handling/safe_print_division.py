@@ -7,5 +7,5 @@ def safe_print_division(a, b):
     except Exception:
         resultado = None
     finally:
-        print(f"Inside result: {resultado}")
+        print("Inside result: {}".format(resultado))
     return resultado
