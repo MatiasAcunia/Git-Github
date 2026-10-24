@@ -2,7 +2,9 @@
 
 
 def print_matrix_integer(matrix=[[]]):
-    for fila in matrix:
+    for row in matrix:
+        for index, number in enumerate(row):
+            print("{:d}".format(number), end="")
+            if index < len(row) - 1:
+                print(" ", end="")
         print()
-        for numero in fila:
-            print("{:d}".format(numero), end="")
